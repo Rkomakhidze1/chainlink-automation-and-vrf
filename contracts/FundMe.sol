@@ -50,4 +50,26 @@ contract FundMe {
         require(success);
     }
 
+    function getAddressToAmountFunded(
+        address fundingAddress
+    ) public view returns (uint256) {
+        return s_addressToAmountFunded[fundingAddress];
+    }
+
+    function getVersion() public view returns (uint256) {
+        return s_priceFeed.version();
+    }
+
+    function getFunder(uint256 index) public view returns (address) {
+        return s_funders[index];
+    }
+
+    function getOwner() public view returns (address) {
+        return i_owner;
+    }
+
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return s_priceFeed;
+    }
+
 }
