@@ -15,4 +15,15 @@ contract FundMe {
     mapping(address => uint256) private s_addressToAmountFunded;
     AggregatorV3Interface private s_priceFeed;
 
+    constructor(address priceFeed) {
+        s_priceFeed = AggregatorV3Interface(priceFeed);
+        i_owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        // require(msg.sender == i_owner);
+        if (msg.sender != i_owner) revert FundMe__NotOwner();
+        _;
+    }
+
 }
