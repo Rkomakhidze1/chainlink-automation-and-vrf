@@ -49,5 +49,4 @@ contract FundMe {
         (bool success, ) = i_owner.call{value: address(this).balance}("");
         require(success);
     }
-
 }
