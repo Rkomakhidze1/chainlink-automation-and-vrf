@@ -1,5 +1,6 @@
 const { assert, expect } = require("chai");
-const { ethers } = require("hardhat");
+const { network, ethers } = require("hardhat");
+const { developmentChains } = require("../helper-hardhat-config");
 const { deployFundMe } = require("../scripts/deploy");
 
 describe("FundMe", function () {
@@ -33,6 +34,41 @@ describe("FundMe", function () {
       await fundMe.fund({ value: sendValue });
       const response = await fundMe.getFunder(0);
       assert.equal(response, deployer.address);
+    });
+  });
+  describe("withdraw", function () {
+    beforeEach(async () => {
+      await fundMe.fund({ value: sendValue });
+    });
+    it("withdraws ETH from a single funder", async () => {
+      // Arrange
+      const startingFundMeBalance = await fundMe.provider.getBalance(
+        fundMe.address
+      );
+      const startingDeployerBalance = await fundMe.provider.getBalance(
+        deployer.address
+      );
+
+      // Act
+      const transactionResponse = await fundMe.withdraw();
+      const transactionReceipt = await transactionResponse.wait();
+      const { gasUsed, effectiveGasPrice } = transactionReceipt;
+      const gasCost = gasUsed.mul(effectiveGasPrice);
+
+      const endingFundMeBalance = await fundMe.provider.getBalance(
+        fundMe.address
+      );
+      const endingDeployerBalance = await fundMe.provider.getBalance(
+        deployer.address
+      );
+
+      // Assert
+      // Maybe clean up to understand the testing
+      assert.equal(endingFundMeBalance, 0);
+      assert.equal(
+        startingFundMeBalance.add(startingDeployerBalance).toString(),
+        endingDeployerBalance.add(gasCost).toString()
+      );
     });
   });
 });
