@@ -16,12 +16,15 @@ const { deployFundMe } = require("../scripts/deploy");
       });
 
       describe("fund", function () {
+        // https://ethereum-waffle.readthedocs.io/en/latest/matchers.html
+        // could also do assert.fail
         it("Fails if you don't send enough ETH", async () => {
           await expect(fundMe.fund()).to.be.revertedWith(
             "You need to spend more ETH!"
           );
         });
-
+        // we could be even more precise here by making sure exactly $50 works
+        // but this is good enough for now
         it("Updates the amount funded data structure", async () => {
           await fundMe.fund({ value: sendValue });
 
@@ -42,6 +45,7 @@ const { deployFundMe } = require("../scripts/deploy");
           await fundMe.fund({ value: sendValue });
         });
         it("withdraws ETH from a single funder", async () => {
+          // Arrange
           const startingFundMeBalance = await fundMe.provider.getBalance(
             fundMe.address
           );
@@ -49,6 +53,7 @@ const { deployFundMe } = require("../scripts/deploy");
             deployer.address
           );
 
+          // Act
           const transactionResponse = await fundMe.withdraw();
           const transactionReceipt = await transactionResponse.wait();
           const { gasUsed, effectiveGasPrice } = transactionReceipt;
@@ -61,14 +66,16 @@ const { deployFundMe } = require("../scripts/deploy");
             deployer.address
           );
 
+          // Assert
+          // Maybe clean up to understand the testing
           assert.equal(endingFundMeBalance, 0);
           assert.equal(
             startingFundMeBalance.add(startingDeployerBalance).toString(),
             endingDeployerBalance.add(gasCost).toString()
           );
         });
-
         it("is allows us to withdraw with multiple funders", async () => {
+          // Arrange
           const accounts = await ethers.getSigners();
           for (i = 1; i < 6; i++) {
             const fundMeConnectedContract = await fundMe.connect(accounts[i]);
@@ -95,10 +102,12 @@ const { deployFundMe } = require("../scripts/deploy");
           const endingDeployerBalance = await fundMe.provider.getBalance(
             deployer.address
           );
+          // Assert
           assert.equal(
             startingFundMeBalance.add(startingDeployerBalance).toString(),
             endingDeployerBalance.add(withdrawGasCost).toString()
           );
+          // Make a getter for storage variables
           await expect(fundMe.getFunder(0)).to.be.reverted;
 
           for (i = 1; i < 6; i++) {
