@@ -1,7 +1,7 @@
 const { ethers, network } = require("hardhat");
 const { networkConfig } = require("../helper-hardhat-config");
 const DECIMALS = "8";
-const INITIAL_PRICE = "200000000000"; // 2000
+const INITIAL_PRICE = "200000000000"; 
 
 async function main() {
   await deployFundMe();
